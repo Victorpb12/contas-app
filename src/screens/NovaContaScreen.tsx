@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { storageService } from "../storage";
 import { Conta, RootStackParamList } from "../types";
-import { formatarMoeda } from "../utils";
+import { formatarMoeda, formatCurrency, parseCurrency } from "../utils";
 
 type NovaContaScreenProps = {
   navigation: BottomTabNavigationProp<RootStackParamList, "NovaConta">;
@@ -31,7 +31,7 @@ export const NovaContaScreen: React.FC<NovaContaScreenProps> = ({
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
   const [valorTotal, setValorTotal] = useState("");
-  const [valorPago, setValorPago] = useState("0");
+  const [valorPago, setValorPago] = useState("");
   const [temParcelas, setTemParcelas] = useState(false);
   const [quantidadeParcelas, setQuantidadeParcelas] = useState("1");
 
@@ -42,8 +42,8 @@ export const NovaContaScreen: React.FC<NovaContaScreenProps> = ({
       if (contaAtual) {
         setTitulo(contaAtual.titulo);
         setDescricao(contaAtual.descricao);
-        setValorTotal(contaAtual.valorTotal.toString());
-        setValorPago(contaAtual.valorPago.toString());
+        setValorTotal(formatCurrency(contaAtual.valorTotal));
+        setValorPago(formatCurrency(contaAtual.valorPago));
         setTemParcelas(contaAtual.temParcelas);
         setQuantidadeParcelas(contaAtual.quantidadeParcelas.toString());
       } else {
@@ -92,7 +92,8 @@ export const NovaContaScreen: React.FC<NovaContaScreenProps> = ({
   const handleSalvar = async () => {
     if (!validarCampos()) return;
 
-    const valorTotalNum = parseFloat(valorTotal);
+    const valorTotalNum = parseCurrency(valorTotal);
+    const valorPagoNum = parseCurrency(valorPago);
     const quantidadeParcelasNum = temParcelas
       ? parseInt(quantidadeParcelas)
       : 1;
@@ -124,7 +125,7 @@ export const NovaContaScreen: React.FC<NovaContaScreenProps> = ({
       titulo: titulo.trim(),
       descricao: descricao.trim(),
       valorTotal: valorTotalNum,
-      valorPago: contaParaEditar?.valorPago || 0,
+      valorPago: contaParaEditar?.valorPago ? valorPagoNum : valorPagoNum,
       temParcelas,
       quantidadeParcelas: quantidadeParcelasNum,
       valorParcela: valorParcelaNum,
@@ -145,7 +146,7 @@ export const NovaContaScreen: React.FC<NovaContaScreenProps> = ({
     setTemParcelas(false);
     setQuantidadeParcelas("1");
 
-    navigation.navigate("Contas");
+    navigation.navigate("ContasTab" as any);
   };
 
   return (
@@ -195,6 +196,14 @@ export const NovaContaScreen: React.FC<NovaContaScreenProps> = ({
               value={valorTotal}
               onChangeText={setValorTotal}
               keyboardType="numeric"
+              onFocus={() => {
+                const num = parseCurrency(valorTotal);
+                setValorTotal(num ? num.toString() : "");
+              }}
+              onBlur={() => {
+                const num = parseCurrency(valorTotal);
+                setValorTotal(num ? formatCurrency(num) : "");
+              }}
             />
           </View>
 
@@ -206,6 +215,14 @@ export const NovaContaScreen: React.FC<NovaContaScreenProps> = ({
               value={valorPago}
               onChangeText={setValorPago}
               keyboardType="numeric"
+              onFocus={() => {
+                const num = parseCurrency(valorPago);
+                setValorPago(num ? num.toString() : "");
+              }}
+              onBlur={() => {
+                const num = parseCurrency(valorPago);
+                setValorPago(num ? formatCurrency(num) : "");
+              }}
             />
           </View>
 
