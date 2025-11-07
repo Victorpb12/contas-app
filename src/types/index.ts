@@ -20,6 +20,9 @@ export interface Conta {
 }
 
 export type RootStackParamList = {
+  Login: undefined;
+  Register: undefined;
+  ForgotPassword: undefined;
   Contas: undefined;
   NovaConta: { conta?: Conta } | undefined;
   DetalhesConta: { conta: Conta };

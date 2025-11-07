@@ -3,25 +3,21 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React from "react";
+import { ActivityIndicator, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAuth } from "../contexts/AuthContent";
 import { ContasScreen } from "../screens/ContasScreen";
 import { DetalhesContaScreen } from "../screens/DetalhesContaScreen";
+import { ForgotPasswordScreen } from "../screens/ForgotPasswordScreen";
+import { LoginScreen } from "../screens/LoginScreen";
 import { NovaContaScreen } from "../screens/NovaContaScreen";
+import { RegisterScreen } from "../screens/RegisterScreen";
 import { RootStackParamList } from "../types";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-const ContasStack = () => {
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Contas" component={ContasScreen} />
-      <Stack.Screen name="DetalhesConta" component={DetalhesContaScreen} />
-    </Stack.Navigator>
-  );
-};
-
-export const AppNavigator: React.FC = () => {
+const MainTab: React.FC = () => {
   const insets = useSafeAreaInsets();
 
   return (
@@ -59,6 +55,44 @@ export const AppNavigator: React.FC = () => {
           }}
         />
       </Tab.Navigator>
+    </NavigationContainer>
+  );
+};
+
+const ContasStack = () => {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Contas" component={ContasScreen} />
+      <Stack.Screen name="DetalhesConta" component={DetalhesContaScreen} />
+    </Stack.Navigator>
+  );
+};
+
+export const AppNavigator: React.FC = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#2563eb" />
+      </View>
+    );
+  }
+
+  return (
+    <NavigationContainer>
+      {user ? (
+        <MainTab />
+      ) : (
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen
+            name="ForgotPassword"
+            component={ForgotPasswordScreen}
+          />
+        </Stack.Navigator>
+      )}
     </NavigationContainer>
   );
 };
