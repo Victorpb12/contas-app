@@ -19,6 +19,10 @@ export const DetalhesContaScreen: React.FC<DetalhesContaScreenProps> = ({
   const [conta, setConta] = useState<Conta>(route.params.conta);
 
   const calcularValorPago = (): number => {
+    const temParcelas = conta.temParcelas;
+    if (!temParcelas) {
+      return conta.valorPago;
+    }
     return conta.parcelas?.reduce((total, parcela) => {
       return parcela.paga ? total + parcela.valor : total;
     }, 0);
